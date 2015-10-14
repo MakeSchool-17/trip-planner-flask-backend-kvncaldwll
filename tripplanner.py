@@ -55,28 +55,27 @@ class Trips(Resource):
             return response
 
 
-class Users(Resource):
-    def post(self):
-        new_user = request.json
-        user_collection = app.db.users
-        result = user_collection.insert_one(new_user)
-        my_user = user_collection.find_one({'_user': ObjectId(result.insert_id)})
-        return my_user
+# class Users(Resource):
+#     def post(self):
+#         new_user = request.json
+#         user_collection = app.db.users
+#         result = user_collection.insert_one(new_user)
+#         my_user = user_collection.find_one({'_user': ObjectId(result.insert_id)})
+#         return my_user
+#
+#     def get(self, user_id):
+#         user_collection = app.db.users
+#         my_user = user_collection.find_one({'_user': ObjectID(user_id)})
+#         if my_user is None:
+#             response = jsonify(data=[])
+#             response.status_code = 404
+#             return response
+#         else:
+#             user_trips = trip_collection.find()
+#             return user_trips
 
-    def get(self, user_id):
-        user_collection = app.db.users
-        my_user = user_collection.find_one({'_user': ObjectID(user_id)})
-        if my_user is None:
-            response = jsonify(data=[])
-            response.status_code = 404
-            return response
-        else:
-            # user_trips = trip_collection.find()
-            # return user_trips
-
-
-api.add_resource(Trips, '/developer/trips', '/developer/trips/<string: trip_id>')
-api.add_resource(Users, '/developer/users', '/developer/users/<string: user_id>')
+api.add_resource(Trips, '/trips', '/trips/<string: trip_id>')
+# api.add_resource(Users, '/users', '/users/<string: user_id>')
 
 
 @api.representation('application/json')

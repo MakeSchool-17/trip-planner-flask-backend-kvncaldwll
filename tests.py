@@ -1,4 +1,4 @@
-import server
+import tripplanner
 import unittest
 import json
 from pymongo import MongoClient

@@ -20,7 +20,7 @@ class Trips(Resource):
         my_trip = trip_collection.find_one({'_id': ObjectId(result.insert_id)})
         return my_trip
 
-    def get(self, *trip_id):
+    def get(self, trip_id=None):
         trip_collection = app.db.my_trips
         if trip_id is not None:
             my_trip = trip_collection.find_one({'_id': ObjectId(trip_id)})

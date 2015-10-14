@@ -2,6 +2,7 @@ import tripplanner
 import unittest
 import json
 from pymongo import MongoClient
+import pdb
 
 class FlaskrTestCase(unittest.TestCase):
 

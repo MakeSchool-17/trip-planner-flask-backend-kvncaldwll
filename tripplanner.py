@@ -74,7 +74,7 @@ class Trips(Resource):
 #             user_trips = trip_collection.find()
 #             return user_trips
 
-api.add_resource(Trips, '/trips', '/trips/<string: trip_id>')
+api.add_resource(Trips, '/trips', '/trips/<string:trip_id>')
 # api.add_resource(Users, '/users', '/users/<string: user_id>')
 
 
@@ -86,4 +86,4 @@ def output_json(data, code, headers=None):
 
 if __name__ == '__main__':
     app.config['TRAP_BAD_REQUEST_ERRORS'] = True
-    app.run(deubg=True)
+    app.run(debug=True)

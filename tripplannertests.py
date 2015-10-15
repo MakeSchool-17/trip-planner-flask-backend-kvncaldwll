@@ -26,7 +26,7 @@ class FlaskrTestCase(unittest.TestCase):
         responseJSON = json.loads(response.data.decode())
         self.assertEqual(response.status_code, 200)
         assert 'application/json' in response.content_type
-        assert 'murica' in responseJSON["trips"]
+        assert 'murica' in responseJSON["trip"]
 
     def test_getting_trip(self):
         response = self.app.post('/trips/', data=json.dumps(dict(trip="egypt")), content_type='application/json')

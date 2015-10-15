@@ -52,7 +52,7 @@ class Trips(Resource):
     # remove trip by trip_id
     def delete(self, trip_id):
         trip_collection = app.db.my_trips
-        remove_trip = trip_collection.remove(ObjectId(trip_id))
+        remove_trip = trip_collection.delete_one({'_id': ObjectId(trip_id)})
         if remove_trip is None:
             response = jsonify(data=[])
             response.status_code = 404

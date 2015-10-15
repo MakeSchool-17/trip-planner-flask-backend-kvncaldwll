@@ -23,26 +23,41 @@ class FlaskrTestCase(unittest.TestCase):
 
     def test_posting_trip(self):
         response = self.app.post('/trips/', data=json.dumps(dict(trip="murica")), content_type='application/json')
-        responseJSON = json.loads(response.data.decode())
+        post_responseJSON = json.loads(response.data.decode())
         self.assertEqual(response.status_code, 200)
         assert 'application/json' in response.content_type
-        assert 'murica' in responseJSON["trip"]
+        assert 'murica' in post_responseJSON["trip"]
 
-    def test_getting_trip(self):
-        response = self.app.post('/trips/', data=json.dumps(dict(trip="egypt")), content_type='application/json')
-
-        postResponseJSON = json.loads(response.data.decode())
-        postedObjectID = postResponseJSON["_id"]
-
-        response = self.app.get('/trips/'+postedObjectID)
-        responseJSON = json.loads(response.data.decode())
-
+    def test_updating_trip(self):
+        # post trip and confirm post success
+        response = self.app.post('/trips/', data=json.dumps(dict(trip="neverland")), content_type='application/json')
+        post_responseJSON = json.loads(response.data.decode())
+        # var holds trip_id
+        postedObjectID = post_responseJSON["_id"]
         self.assertEqual(response.status_code, 200)
-        assert 'egypt' in responseJSON["trip"]
+        assert 'neverland' in post_responseJSON["trip"]
 
-    def test_getting_non_existent_trip(self):
-        response = self.app.get('/trips/55f0cbb4236f44b7f0e3cb23')
-        self.assertEqual(response.status_code, 404)
+        # update value at trip_id (postedObjectID)
+        update = self.app.put('/trips/'+postedObjectID, data=json.dumps(dict(trip="atlantis")), content_type='application/json')
+        update_responseJSON = json.loads(update.data.decode())
+        # confirm updated value is matched
+        self.assertEqual(update.status_code, 200)
+        assert 'atlantis' in update_responseJSON["trip"]
+
+    def test_deleting_trip(self):
+        #post new trip
+        response = self.app.post('/trips/', data=json.dumps(dict(trip="the sun")), content_type='application/json')
+        post_responseJSON = json.loads(response.data.decode())
+        postedObjectID = post_responseJSON["_id"]
+        self.assertEqual(response.status_code, 200)
+        assert 'the sun' in post_responseJSON["trip"]
+
+        # delete post by trip_id
+        delete_response = self.app.delete('/trip/'+postedObjectID)
+        self.assertEqual(delete_response.status_code, 200)
+        check_delete = self.app.get('/trips/'+postedObjectID)
+        check_responseJSON = json.loads(check_delete.data.decode())
+        self.assertEqual(delete_response.status_code, 404)
 
 if __name__ == '__main__':
     unittest.main()

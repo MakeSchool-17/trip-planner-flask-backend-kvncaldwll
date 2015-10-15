@@ -29,6 +29,7 @@ class FlaskrTestCase(unittest.TestCase):
         assert 'murica' in post_responseJSON["trip"]
 
     def test_updating_trip(self):
+        import pdb; pdb.set_trace()
         # post trip and confirm post success
         response = self.app.post('/trips/', data=json.dumps(dict(trip="neverland")), content_type='application/json')
         post_responseJSON = json.loads(response.data.decode())
@@ -53,7 +54,7 @@ class FlaskrTestCase(unittest.TestCase):
         assert 'the sun' in post_responseJSON["trip"]
 
         # delete post by trip_id
-        delete_response = self.app.delete('/trip/'+postedObjectID)
+        delete_response = self.app.delete('/trips/'+postedObjectID)
         self.assertEqual(delete_response.status_code, 200)
         check_delete = self.app.get('/trips/'+postedObjectID)
         check_responseJSON = json.loads(check_delete.data.decode())

@@ -36,7 +36,8 @@ class Trips(Resource):
             return dumps(my_trip)
 
     # find trip_id, update data
-    def put(self, trip_id, up_data):
+    def put(self, trip_id):
+        update_trip = request.json
         trip_collection = app.db.my_trips
         my_trip = trip_collection.find_one({'_id': ObjectId(trip_id)})
         if my_trip is None:
@@ -44,14 +45,14 @@ class Trips(Resource):
             response.status_code = 404
             return response
         else:
-            update_trip = trip_collection.update_one({'_id': ObjectId(trip_id)}, {'$set': up_data}, upsert=False)
-            mod_trip = trip_collection.find_one({'_id': ObjectId(update_trip.inserted_id)})
+            update_trip = trip_collection.update_one({'_id': ObjectId(trip_id)}, {'$set': update_trip}, upsert=False)
+            mod_trip = trip_collection.find_one({'_id': ObjectId(trip_id)})
             return mod_trip
 
     # remove trip by trip_id
     def delete(self, trip_id):
         trip_collection = app.db.my_trips
-        remove_trip = trip_collection.remove_one(ObjectId(trip_id))
+        remove_trip = trip_collection.remove(ObjectId(trip_id))
         if remove_trip is None:
             response = jsonify(data=[])
             response.status_code = 404

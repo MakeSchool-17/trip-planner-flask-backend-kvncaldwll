@@ -29,7 +29,6 @@ class FlaskrTestCase(unittest.TestCase):
         assert 'murica' in post_responseJSON["trip"]
 
     def test_updating_trip(self):
-        import pdb; pdb.set_trace()
         # post trip and confirm post success
         response = self.app.post('/trips/', data=json.dumps(dict(trip="neverland")), content_type='application/json')
         post_responseJSON = json.loads(response.data.decode())
@@ -46,7 +45,7 @@ class FlaskrTestCase(unittest.TestCase):
         assert 'atlantis' in update_responseJSON["trip"]
 
     def test_deleting_trip(self):
-        #post new trip
+        # post new trip
         response = self.app.post('/trips/', data=json.dumps(dict(trip="the sun")), content_type='application/json')
         post_responseJSON = json.loads(response.data.decode())
         postedObjectID = post_responseJSON["_id"]
@@ -55,10 +54,11 @@ class FlaskrTestCase(unittest.TestCase):
 
         # delete post by trip_id
         delete_response = self.app.delete('/trips/'+postedObjectID)
+        delete_checkJSON = json.loads(delete_response.data.decode())
         self.assertEqual(delete_response.status_code, 200)
-        check_delete = self.app.get('/trips/'+postedObjectID)
-        check_responseJSON = json.loads(check_delete.data.decode())
-        self.assertEqual(delete_response.status_code, 404)
+        get_deleted = self.app.get('/trips/'+postedObjectID)
+        get_deleted_responseJSON = json.loads(get_deleted.data.decode())
+        self.assertEqual(get_deleted.status_code, 404)
 
 if __name__ == '__main__':
     unittest.main()

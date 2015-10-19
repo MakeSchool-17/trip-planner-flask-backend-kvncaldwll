@@ -17,17 +17,17 @@ class Trips(Resource):
     @requires_auth
     def post(self):
         new_trip = request.json
-        trip_collection = app.db.my_trips
-        result = trip_collection.insert_one(new_trip)
-        my_trip = trip_collection.find_one({'_id': ObjectId(result.inserted_id)})
+        trip_db = app.db.my_trips
+        result = trip_db.insert_one(new_trip)
+        my_trip = trip_db.find_one({'_id': ObjectId(result.inserted_id)})
         return my_trip
 
     # find trip by trip_id or return all trips in db
     @requires_auth
     def get(self, trip_id=None):
-        trip_collection = app.db.my_trips
+        trip_db = app.db.my_trips
         if trip_id is not None:
-            my_trip = trip_collection.find_one({'_id': ObjectId(trip_id)})
+            my_trip = trip_db.find_one({'_id': ObjectId(trip_id)})
             if my_trip is None:
                 response = jsonify(data=[])
                 response.status_code = 404
@@ -35,29 +35,29 @@ class Trips(Resource):
             else:
                 return my_trip
         else:
-            my_trip = trip_collection.find()
+            my_trip = trip_db.find()
             return dumps(my_trip)
 
     # find trip_id, update data
     @requires_auth
     def put(self, trip_id):
         update_trip = request.json
-        trip_collection = app.db.my_trips
-        my_trip = trip_collection.find_one({'_id': ObjectId(trip_id)})
+        trip_db = app.db.my_trips
+        my_trip = trip_db.find_one({'_id': ObjectId(trip_id)})
         if my_trip is None:
             response = jsonify(data=[])
             response.status_code = 404
             return response
         else:
-            update_trip = trip_collection.update_one({'_id': ObjectId(trip_id)}, {'$set': update_trip}, upsert=False)
-            mod_trip = trip_collection.find_one({'_id': ObjectId(trip_id)})
+            update_trip = trip_db.update_one({'_id': ObjectId(trip_id)}, {'$set': update_trip}, upsert=False)
+            mod_trip = trip_db.find_one({'_id': ObjectId(trip_id)})
             return mod_trip
 
     # remove trip by trip_id
     @requires_auth
     def delete(self, trip_id):
-        trip_collection = app.db.my_trips
-        remove_trip = trip_collection.delete_one({'_id': ObjectId(trip_id)})
+        trip_db = app.db.my_trips
+        remove_trip = trip_db.delete_one({'_id': ObjectId(trip_id)})
         if remove_trip is None:
             response = jsonify(data=[])
             response.status_code = 404
@@ -68,22 +68,22 @@ class Users(Resource):
     # add new user to db
     def post(self):
         new_user = request.json
-        user_collection = app.db.users
-        result = user_collection.insert_one(new_user)
-        my_user = user_collection.find_one({'_user': ObjectId(result.inserted_id)})
+        username_db = app.db.users
+        result = username_db.insert_one(new_user)
+        my_user = username_db.find_one({'user_ID': ObjectId(result.inserted_id)})
         return my_user
 
     # find trips for user
     def get(self, user_id):
-        user_collection = app.db.users
-        my_user = user_collection.find_one({'_user': ObjectId(user_id)})
-        if my_user is None:
+        @requires_auth
+        trip_db = app.db.my_trips
+        user_trips = trip_db.find()
+        if user_trips is None:
             response = jsonify(data=[])
             response.status_code = 404
             return response
         else:
-            user_trips = user_collection.find()
-            return dumps(user_trips)
+            return dumps(trip_trips)
 
 
 def check_auth(username, password):
@@ -99,7 +99,6 @@ def requires_auth(f):
             resp = jsonify(message)
             resp.status_code = 401
             return resp
-
         return f(*args, **kwargs)
     return decorated
 

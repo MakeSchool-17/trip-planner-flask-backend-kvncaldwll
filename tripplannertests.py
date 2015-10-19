@@ -18,6 +18,10 @@ class FlaskrTestCase(unittest.TestCase):
 
         # Drop collection (significantly faster than dropping entire db)
         db.drop_collection('trips')
+        # [Ben-G] You should also drop the user collection to make sure that you always
+        # start without users. Each test should set up the entire environment it needs.
+        # This way the tests don't depend on each other and are guaranteed to verify
+        # the tested code correctly.
 
     # Users testing
 
@@ -58,6 +62,7 @@ class FlaskrTestCase(unittest.TestCase):
     def test_deleting_trip(self):
         # post new trip
         my_trip = [{'trip': 'europe'}, {'waypoints': ['greece', 'france', 'italy', 'germany']}]
+        # [Ben-G] For deletion it is not necessary to pass a body to the server, an ID is sufficient
         response = self.app.post('/trips/', data=json.dumps(dict(trip=my_trip)), content_type='application/json')
         post_responseJSON = json.loads(response.data.decode())
         postedObjectID = post_responseJSON["_id"]

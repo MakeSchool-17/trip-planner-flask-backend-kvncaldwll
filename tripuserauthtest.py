@@ -21,7 +21,6 @@ class FlaskrTestCase(unittest.TestCase):
 
     def test_posting_user(self):
         import pdb; pdb.set_trace()
-        # new_user_info = {'username': 'kevin', 'password': 'secret123'}
         response = self.app.post('/users/', data=json.dumps(dict(username='kevin', password='secret123')), content_type='application/json')
         responseJSON = json.loads(response.data.decode())
         self.assertEqual(response.status_code, 200)

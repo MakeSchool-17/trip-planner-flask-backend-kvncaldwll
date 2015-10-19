@@ -71,10 +71,15 @@ class Users(Resource):
     def post(self):
         new_user = request.json
         username_db = app.db.users
+<<<<<<< HEAD
         encode_pass = new_user['password'].encode('utf-8')
         hashed_password = bcrypt.hashpw(encode_pass, bcrypt.gensalt(app.bcrypt_rounds))
         new_user['password'] = hashed_password
         print(new_user)
+=======
+        # [Ben-G] Here it's important to encrypt the password, I'm assuming your still
+        # working on that :)
+>>>>>>> df277407bc412c4d63fa52885e7c2238159403fb
         result = username_db.insert_one(new_user)
         my_userID = username_db.find_one({'_id': ObjectId(result.inserted_id)})
         return my_userID['_id']

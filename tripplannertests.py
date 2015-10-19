@@ -19,29 +19,18 @@ class FlaskrTestCase(unittest.TestCase):
         # Drop collection (significantly faster than dropping entire db)
         db.drop_collection('trips')
 
-    # Users testing
-
-    def test_posting_user(self):
-        import pdb; pdb.set_trace()
-        username = 'kevin'
-        response = self.app.post('/users/', data=json.dumps(dict(user=username)), content_type='application/json')
-        post_responseJSON = json.loads(response.data.decode())
-        postedUserID = post_responseJSON["_id"]
-        self.assertEqual(response.status_code, 200)
-        assert 'application/json' in response.content_type
-        assert 'kevin' in responseJSON["user"]
 
     # Trips tests
 
     def test_posting_trip(self):
-        my_trip = [{'user_id': '012345'}, {'trip': 'caribbean'}, {'waypoints': ['puerto rico', 'dominican republic', 'jamaica']}]
+        my_trip = [{'destination': 'caribbean'}, {'waypoints': ['puerto rico', 'dominican republic', 'jamaica']}]
         response = self.app.post('/trips/', data=json.dumps(dict(trip=my_trip)), content_type='application/json')
         post_responseJSON = json.loads(response.data.decode())
         self.assertEqual(response.status_code, 200)
         assert 'application/json' in response.content_type
 
     def test_updating_trip(self):
-        my_trip = [{'trip': 'africa'}, {'waypoints': ['ethiopia', 'egypt', 'south africa']}]
+        my_trip = [{'destination': 'africa'}, {'waypoints': ['ethiopia', 'egypt', 'south africa']}]
         response = self.app.post('/trips/', data=json.dumps(dict(trip=my_trip)), content_type='application/json')
         post_responseJSON = json.loads(response.data.decode())
         # var holds trip_id

@@ -68,6 +68,8 @@ class Users(Resource):
     def post(self):
         new_user = request.json
         username_db = app.db.users
+        # [Ben-G] Here it's important to encrypt the password, I'm assuming your still
+        # working on that :)
         result = username_db.insert_one(new_user)
         my_userID = username_db.find_one({'user_ID': ObjectId(result.inserted_id)})
         return my_userID

@@ -4,7 +4,6 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 from utils.mongo_json_encoder import JSONEncoder
 from json import dumps
-import bcrypt
 
 app = Flask(__name__)
 mongo = MongoClient('localhost', 27017)
@@ -14,7 +13,7 @@ api = Api(app)
 
 class Trips(Resource):
     # add a new trip
-    @requires_auth
+    # @requires_auth
     def post(self):
         new_trip = request.json
         trip_db = app.db.my_trips
@@ -23,7 +22,7 @@ class Trips(Resource):
         return my_trip
 
     # find trip by trip_id or return all trips in db
-    @requires_auth
+    # @requires_auth
     def get(self, trip_id=None):
         trip_db = app.db.my_trips
         if trip_id is not None:
@@ -39,7 +38,7 @@ class Trips(Resource):
             return dumps(my_trip)
 
     # find trip_id, update data
-    @requires_auth
+    # @requires_auth
     def put(self, trip_id):
         update_trip = request.json
         trip_db = app.db.my_trips
@@ -54,7 +53,7 @@ class Trips(Resource):
             return mod_trip
 
     # remove trip by trip_id
-    @requires_auth
+    # @requires_auth
     def delete(self, trip_id):
         trip_db = app.db.my_trips
         remove_trip = trip_db.delete_one({'_id': ObjectId(trip_id)})
@@ -70,20 +69,20 @@ class Users(Resource):
         new_user = request.json
         username_db = app.db.users
         result = username_db.insert_one(new_user)
-        my_user = username_db.find_one({'user_ID': ObjectId(result.inserted_id)})
-        return my_user
+        my_userID = username_db.find_one({'user_ID': ObjectId(result.inserted_id)})
+        return my_userID
 
     # find trips for user
-    def get(self, user_id):
-        @requires_auth
-        trip_db = app.db.my_trips
-        user_trips = trip_db.find()
-        if user_trips is None:
-            response = jsonify(data=[])
-            response.status_code = 404
-            return response
-        else:
-            return dumps(trip_trips)
+    # def get(self, user_id):
+    #     @requires_auth
+    #     trip_db = app.db.my_trips
+    #     user_trips = trip_db.find()
+    #     if user_trips is None:
+    #         response = jsonify(data=[])
+    #         response.status_code = 404
+    #         return response
+    #     else:
+    #         return dumps(trip_trips)
 
 
 def check_auth(username, password):

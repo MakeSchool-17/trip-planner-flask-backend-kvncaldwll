@@ -4,6 +4,7 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 from utils.mongo_json_encoder import JSONEncoder
 from json import dumps
+import bcrypt
 
 app = Flask(__name__)
 mongo = MongoClient('localhost', 27017)
@@ -13,6 +14,7 @@ api = Api(app)
 
 class Trips(Resource):
     # add a new trip
+    @requires_auth
     def post(self):
         new_trip = request.json
         trip_collection = app.db.my_trips
@@ -21,6 +23,7 @@ class Trips(Resource):
         return my_trip
 
     # find trip by trip_id or return all trips in db
+    @requires_auth
     def get(self, trip_id=None):
         trip_collection = app.db.my_trips
         if trip_id is not None:
@@ -36,6 +39,7 @@ class Trips(Resource):
             return dumps(my_trip)
 
     # find trip_id, update data
+    @requires_auth
     def put(self, trip_id):
         update_trip = request.json
         trip_collection = app.db.my_trips
@@ -50,6 +54,7 @@ class Trips(Resource):
             return mod_trip
 
     # remove trip by trip_id
+    @requires_auth
     def delete(self, trip_id):
         trip_collection = app.db.my_trips
         remove_trip = trip_collection.delete_one({'_id': ObjectId(trip_id)})
@@ -79,6 +84,25 @@ class Users(Resource):
         else:
             user_trips = user_collection.find()
             return dumps(user_trips)
+
+
+def check_auth(username, password):
+    return username == 'admin' and password == 'secret'
+
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            message = {'error': 'Basic Auth Required.'}
+            resp = jsonify(message)
+            resp.status_code = 401
+            return resp
+
+        return f(*args, **kwargs)
+    return decorated
+
 
 api.add_resource(Trips, '/trips/', '/trips/<string:trip_id>')
 api.add_resource(Users, '/users/', '/users/<string:user_id>')

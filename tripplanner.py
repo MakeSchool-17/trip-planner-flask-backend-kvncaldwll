@@ -4,11 +4,14 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 from utils.mongo_json_encoder import JSONEncoder
 from json import dumps
+import bcrypt
 
 app = Flask(__name__)
 mongo = MongoClient('localhost', 27017)
 app.db = mongo.develop_database
 api = Api(app)
+app.bcrypt_rounds = 12
+
 
 
 class Trips(Resource):
@@ -68,9 +71,13 @@ class Users(Resource):
     def post(self):
         new_user = request.json
         username_db = app.db.users
+        encode_pass = new_user['password'].encode('utf-8')
+        hashed_password = bcrypt.hashpw(encode_pass, bcrypt.gensalt(app.bcrypt_rounds))
+        new_user['password'] = hashed_password
+        print(new_user)
         result = username_db.insert_one(new_user)
-        my_userID = username_db.find_one({'user_ID': ObjectId(result.inserted_id)})
-        return my_userID
+        my_userID = username_db.find_one({'_id': ObjectId(result.inserted_id)})
+        return my_userID['_id']
 
     # find trips for user
     # def get(self, user_id):

@@ -13,21 +13,20 @@ api = Api(app)
 app.bcrypt_rounds = 12
 
 
-
 class Trips(Resource):
-    # add a new trip
-    # @requires_auth
+    @requires_auth
     def post(self):
+        username = request.authorization.username
         new_trip = request.json
-        trip_db = app.db.my_trips
+        new_trip["username"] = username
+        trip_db = app.db.trips
         result = trip_db.insert_one(new_trip)
         my_trip = trip_db.find_one({'_id': ObjectId(result.inserted_id)})
         return my_trip
 
-    # find trip by trip_id or return all trips in db
-    # @requires_auth
+    @requires_auth
     def get(self, trip_id=None):
-        trip_db = app.db.my_trips
+        trip_db = app.db.trips
         if trip_id is not None:
             my_trip = trip_db.find_one({'_id': ObjectId(trip_id)})
             if my_trip is None:
@@ -40,11 +39,10 @@ class Trips(Resource):
             my_trip = trip_db.find()
             return dumps(my_trip)
 
-    # find trip_id, update data
-    # @requires_auth
+    @requires_auth
     def put(self, trip_id):
         update_trip = request.json
-        trip_db = app.db.my_trips
+        trip_db = app.db.trips
         my_trip = trip_db.find_one({'_id': ObjectId(trip_id)})
         if my_trip is None:
             response = jsonify(data=[])
@@ -55,10 +53,9 @@ class Trips(Resource):
             mod_trip = trip_db.find_one({'_id': ObjectId(trip_id)})
             return mod_trip
 
-    # remove trip by trip_id
-    # @requires_auth
+    @requires_auth
     def delete(self, trip_id):
-        trip_db = app.db.my_trips
+        trip_db = app.db.trips
         remove_trip = trip_db.delete_one({'_id': ObjectId(trip_id)})
         if remove_trip is None:
             response = jsonify(data=[])
@@ -67,36 +64,35 @@ class Trips(Resource):
 
 
 class Users(Resource):
-    # add new user to db
     def post(self):
         new_user = request.json
         username_db = app.db.users
-# <<<<<<< HEAD
         encode_pass = new_user['password'].encode('utf-8')
         hashed_password = bcrypt.hashpw(encode_pass, bcrypt.gensalt(app.bcrypt_rounds))
         new_user['password'] = hashed_password
-        # [Ben-G] Here it's important to encrypt the password, I'm assuming your still
-        # working on that :)
-# >>>>>>> df277407bc412c4d63fa52885e7c2238159403fb
         result = username_db.insert_one(new_user)
-        my_userID = username_db.find_one({'_id': ObjectId(result.inserted_id)})
-        return my_userID['_id']
+        # username_db.find_one({'_id': ObjectId(result.inserted_id)})
+        return result
 
-    # find trips for user
-    # def get(self, user_id):
-    #     @requires_auth
-    #     trip_db = app.db.my_trips
-    #     user_trips = trip_db.find()
-    #     if user_trips is None:
-    #         response = jsonify(data=[])
-    #         response.status_code = 404
-    #         return response
-    #     else:
-    #         return dumps(trip_trips)
+    @requires_auth
+    def get(self):
+        username = request.authorization.username
+        trip_db = app.db.trips
+        user_trips = trip_db.find(username)
+        if user_trips is None:
+            response = jsonify(data=[])
+            response.status_code = 404
+            return response
+        else:
+            return dumps()
 
 
 def check_auth(username, password):
-    return username == 'admin' and password == 'secret'
+    # user_db = app.db.users
+    encode_pass = password.encode('utf-8')
+    hashed_password = bcrypt.hashpw(encode_pass, bcrypt.gensalt(app.bcrypt_rounds))
+    # return username == user_db.collection.find('username') and hashed_password == user_db.collection.find('password')
+    return username == 'admin' and hashed_password == 'secret'
 
 
 def requires_auth(f):

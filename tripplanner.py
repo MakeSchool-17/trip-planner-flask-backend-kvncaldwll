@@ -15,11 +15,11 @@ app.bcrypt_rounds = 12
 
 
 def check_auth(username, password):
-    # user_db = app.db.users
+    user_db = app.db.users
     # encode_pass = password.encode('utf-8')
     # hashed_password = bcrypt.hashpw(encode_pass, bcrypt.gensalt(app.bcrypt_rounds))
-    # return username == user_db.collection.find('username') and hashed_password == user_db.collection.find('password')
-    return username == 'admin' and password == 'secret'
+    return username == user_db.find_one('username') and password == user_db.find_one('password')
+    # return username == 'admin' and password == 'secret'
 
 
 def requires_auth(f):

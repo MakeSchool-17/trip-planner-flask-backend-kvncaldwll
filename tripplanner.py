@@ -5,7 +5,6 @@ from bson.objectid import ObjectId
 from utils.mongo_json_encoder import JSONEncoder
 from json import dumps
 import bcrypt
-# import base64
 from functools import wraps
 
 app = Flask(__name__)
@@ -17,10 +16,10 @@ app.bcrypt_rounds = 12
 
 def check_auth(username, password):
     # user_db = app.db.users
-    encode_pass = password.encode('utf-8')
-    hashed_password = bcrypt.hashpw(encode_pass, bcrypt.gensalt(app.bcrypt_rounds))
+    # encode_pass = password.encode('utf-8')
+    # hashed_password = bcrypt.hashpw(encode_pass, bcrypt.gensalt(app.bcrypt_rounds))
     # return username == user_db.collection.find('username') and hashed_password == user_db.collection.find('password')
-    return username == 'admin' and hashed_password == 'secret'
+    return username == 'admin' and password == 'secret'
 
 
 def requires_auth(f):
@@ -95,9 +94,8 @@ class Users(Resource):
         new_user['password'] = hashed_password
         result = username_db.insert_one(new_user)
         user = username_db.find_one({'_id': ObjectId(result.inserted_id)})
-        print('user:', type(user), user)
+        # dont return hashed passowrds to anyone!!!
         del user['password']
-        print('user:', type(user), user)
         return user
 
     @requires_auth

@@ -5,11 +5,9 @@ from pymongo import MongoClient
 import base64
 
 
-def auth_header(username='admin', password='secret'):
-    # credentials = '{0}:{1}'.format(username, password)
-    # encode_cred = bytes(credentials, 'utf-8')
-    encode_login = base64.b64encode(b'admin:secret').decode()
-    print(dict(Authorization="Basic " + encode_login))
+def auth_header(username, password):
+    credentials = '{0}:{1}'.format(username, password).encode('utf-8')
+    encode_login = base64.b64encode(credentials).decode()
     return dict(Authorization="Basic " + encode_login)
 
 
@@ -29,7 +27,7 @@ class FlaskrTestCase(unittest.TestCase):
         db.drop_collection('users')
         db.drop_collection('trips')
 
-    def test_posting_user(self):
+    def test_post_user(self):
         response = self.app.post('/users/',
                                 data=json.dumps(dict(username='admin',
                                 password='secret')),
@@ -39,14 +37,15 @@ class FlaskrTestCase(unittest.TestCase):
         assert 'application/json' in response.content_type
         return responseJSON
 
-    def test_post_with_auth(self):
+    def test_post_trip_auth(self):
         # import pdb; pdb.set_trace()
         trip_data = dict(trip='europe', waypoints=['london', 'paris', 'milan'])
         response = self.app.post('/trips/',
                                  data=json.dumps(trip_data),
                                  content_type='application/json',
-                                 header=auth_header())
+                                 headers=auth_header('admin', 'secret'))
         responseJSON = json.loads(response.data.decode())
+        print(responseJSON)
         self.assertEqual(response.status_code, 200)
         assert 'application/json' in response.content_type
 

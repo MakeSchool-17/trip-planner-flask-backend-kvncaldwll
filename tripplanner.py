@@ -17,16 +17,10 @@ app.bcrypt_rounds = 12
 def check_auth(username, password):
     user_db = app.db.users
     find_username = user_db.find_one({'username': username})
-    if find_username is None:
-        message = {'error': 'User Not Found'}
-        response = jsonify(message)
-        response.status_code = 404
-        return response
-    else:
+    if find_username:
+        db_password = find_username['password']
         encode_pass = password.encode('utf-8')
-        hashed_password = bcrypt.hashpw(encode_pass, )
-        return True
-    # return username == 'admin' and password == 'secret'
+        return bcrypt.hashpw(encode_pass, db_password) == db_password
 
 
 def requires_auth(f):
@@ -95,12 +89,12 @@ class Trips(Resource):
 class Users(Resource):
     def post(self):
         new_user = request.json
-        username_db = app.db.users
+        user_db = app.db.users
         encode_pass = new_user['password'].encode('utf-8')
         hashed_password = bcrypt.hashpw(encode_pass, bcrypt.gensalt(app.bcrypt_rounds))
         new_user['password'] = hashed_password
-        result = username_db.insert_one(new_user)
-        user = username_db.find_one({'_id': ObjectId(result.inserted_id)})
+        result = user_db.insert_one(new_user)
+        user = user_db.find_one({'_id': ObjectId(result.inserted_id)})
         # dont return hashed passowrds to anyone!!!
         del user['password']
         return user

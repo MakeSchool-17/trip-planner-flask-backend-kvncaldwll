@@ -16,9 +16,16 @@ app.bcrypt_rounds = 12
 
 def check_auth(username, password):
     user_db = app.db.users
-    # encode_pass = password.encode('utf-8')
-    # hashed_password = bcrypt.hashpw(encode_pass, bcrypt.gensalt(app.bcrypt_rounds))
-    return username == user_db.find_one('username') and password == user_db.find_one('password')
+    find_username = user_db.find_one({'username': username})
+    if find_username is None:
+        message = {'error': 'User Not Found'}
+        response = jsonify(message)
+        response.status_code = 404
+        return response
+    else:
+        encode_pass = password.encode('utf-8')
+        hashed_password = bcrypt.hashpw(encode_pass, )
+        return True
     # return username == 'admin' and password == 'secret'
 
 

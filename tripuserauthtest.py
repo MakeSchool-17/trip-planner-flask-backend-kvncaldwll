@@ -34,20 +34,47 @@ class FlaskrTestCase(unittest.TestCase):
                                 content_type='application/json')
         responseJSON = json.loads(response.data.decode())
         self.assertEqual(response.status_code, 200)
-        assert 'application/json' in response.content_type
         return responseJSON
+        # assert 'application/json' in response.content_type
 
     def test_post_trip_auth(self):
-        # import pdb; pdb.set_trace()
+        response = self.app.post('/users/',
+                                data=json.dumps(dict(username='admin',
+                                password='secret')),
+                                content_type='application/json')
+        responseJSON = json.loads(response.data.decode())
+        self.assertEqual(response.status_code, 200)
+
+
         trip_data = dict(trip='europe', waypoints=['london', 'paris', 'milan'])
         response = self.app.post('/trips/',
                                  data=json.dumps(trip_data),
                                  content_type='application/json',
                                  headers=auth_header('admin', 'secret'))
         responseJSON = json.loads(response.data.decode())
-        print(responseJSON)
+        postedObjectID = responseJSON['_id']
         self.assertEqual(response.status_code, 200)
-        assert 'application/json' in response.content_type
+
+        # get existing trip with auth
+        response = self.app.get('trips/'+postedObjectID,
+                                headers=auth_header('admin', 'secret'))
+        responseJSON = json.loads(response.data.decode())
+        print(responseJSON)
+
+        # get non existing trip
+        response = self.app.get('trips/57389d84496254540367aa0d',
+                                headers=auth_header('admin', 'secret'))
+        self.assertEqual(response.status_code, 404)
+        print(response.status_code)
+
+        # update trip with auth
+
+
+        # delete trip with auth
+        response = self.app.delete('trips/'+postedObjectID,
+                                headers=auth_header('admin', 'secret'))
+        self.assertEqual(response.status_code, 200)
+        print(response.status_code)
 
 
 if __name__ == '__main__':

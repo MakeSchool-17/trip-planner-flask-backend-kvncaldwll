@@ -103,7 +103,7 @@ class Users(Resource):
     def get(self):
         username = request.authorization.username
         trip_db = app.db.trips
-        user_trips = trip_db.find(username)
+        user_trips = trip_db.collection.find({'username': username})
         if user_trips is None:
             response = jsonify(data=[])
             response.status_code = 404
